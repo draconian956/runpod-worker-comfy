@@ -12,13 +12,13 @@ ENV CMAKE_BUILD_PARALLEL_LEVEL=8
 
 # Install Python, git and other necessary tools
 RUN apt-get update && apt-get install -y \
-    python3.10 \
-    python3-pip \
-    git \
-    wget \
-    libgl1 \
-    && ln -sf /usr/bin/python3.10 /usr/bin/python \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip
+	python3.10 \
+	python3-pip \
+	git \
+	wget \
+	libgl1 \
+	&& ln -sf /usr/bin/python3.10 /usr/bin/python \
+	&& ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # Clean up to reduce image size
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
@@ -66,26 +66,31 @@ RUN mkdir -p models/checkpoints models/vae models/diffusion_models models/clip
 
 # Download checkpoints/vae/LoRA to include in image based on model type
 RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
-      wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors && \
-      wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors && \
-      wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors; \
-    elif [ "$MODEL_TYPE" = "sd3" ]; then \
-      wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/checkpoints/sd3_medium_incl_clips_t5xxlfp8.safetensors https://huggingface.co/stabilityai/stable-diffusion-3-medium/resolve/main/sd3_medium_incl_clips_t5xxlfp8.safetensors; \
-    elif [ "$MODEL_TYPE" = "flux1-schnell" ]; then \
-      wget -O models/unet/flux1-schnell.safetensors https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors && \
-      wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
-      wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
-      wget -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors; \
-    elif [ "$MODEL_TYPE" = "flux1-dev" ]; then \
-      wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/unet/flux1-dev.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors && \
-      wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
-      wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
-      wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
-    elif [ "$MODEL_TYPE" = "mochi" ]; then \
-      wget -O models/diffusion_models/mochi1PreviewVideo_previewBF16.safetensors https://civitai.com/api/download/models/1034189?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN} && \
-      wget -O models/vae/mochi1PreviewVideo_vae.safetensors https://civitai.com/api/download/models/1035187?type=Model&format=SafeTensor&size=pruned&fp=fp8&token=${CIVITAI_API_TOKEN} && \
-      wget -O models/clip/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensors https://civitai.com/api/download/models/568485?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN}; \
-    fi
+	wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors && \
+	wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors && \
+	wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors; \
+	elif [ "$MODEL_TYPE" = "sd3" ]; then \
+	wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/checkpoints/sd3_medium_incl_clips_t5xxlfp8.safetensors https://huggingface.co/stabilityai/stable-diffusion-3-medium/resolve/main/sd3_medium_incl_clips_t5xxlfp8.safetensors; \
+	# 下載太久了，不考慮
+	# elif [ "$MODEL_TYPE" = "mochi" ]; then \
+	#   wget -O models/diffusion_models/mochi1PreviewVideo_previewBF16.safetensors "https://civitai.com/api/download/models/1034189?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN}" && \
+	#   wget -O models/vae/mochi1PreviewVideo_vae.safetensors "https://civitai.com/api/download/models/1035187?type=Model&format=SafeTensor&size=pruned&fp=fp8&token=${CIVITAI_API_TOKEN}" && \
+	#   wget -O models/clip/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensors "https://civitai.com/api/download/models/568485?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN}"; \
+	elif [ "$MODEL_TYPE" = "flux1-schnell" ]; then \
+	wget -O models/unet/flux1-schnell.safetensors https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors && \
+	wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
+	wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
+	wget -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors; \
+	elif [ "$MODEL_TYPE" = "flux1-dev" ]; then \
+	wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/unet/flux1-dev.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors && \
+	wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
+	wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
+	wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
+	fi
+
+COPY mochi_models/mochi1PreviewVideo_previewBF16.safetensor[s] models/diffusion_models/
+COPY mochi_models/mochi1PreviewVideo_vae.safetensor[s] models/vae/
+COPY mochi_models/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensor[s] models/clip/
 
 # Stage 3: Final image
 FROM base as final
