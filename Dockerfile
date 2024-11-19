@@ -88,9 +88,9 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
 	wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
 	fi
 
-COPY mochi_models/mochi1PreviewVideo_previewBF16.safetensor[s] models/diffusion_models/
-COPY mochi_models/mochi1PreviewVideo_vae.safetensor[s] models/vae/
-COPY mochi_models/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensor[s] models/clip/
+COPY [mochi_models]/mochi1PreviewVideo_previewBF16.safetensor[s] models/diffusion_models/
+COPY [mochi_models]/mochi1PreviewVideo_vae.safetensor[s] models/vae/
+COPY [mochi_models]/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensor[s] models/clip/
 
 # Stage 3: Final image
 FROM base as final
