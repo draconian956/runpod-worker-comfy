@@ -55,13 +55,14 @@ RUN /restore_snapshot.sh
 FROM base as downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
+ARG CIVITAI_API_TOKEN
 ARG MODEL_TYPE
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
 # Create necessary directories
-RUN mkdir -p models/checkpoints models/vae
+RUN mkdir -p models/checkpoints models/vae models/diffusion_models models/clip
 
 # Download checkpoints/vae/LoRA to include in image based on model type
 RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
@@ -80,6 +81,10 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
       wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
       wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
+    elif [ "$MODEL_TYPE" = "mochi" ]; then \
+      wget -O models/diffusion_models/mochi1PreviewVideo_previewBF16.safetensors https://civitai.com/api/download/models/1034189?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN} && \
+      wget -O models/vae/mochi1PreviewVideo_vae.safetensors https://civitai.com/api/download/models/1035187?type=Model&format=SafeTensor&size=pruned&fp=fp8&token=${CIVITAI_API_TOKEN} && \
+      wget -O models/clip/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensors https://civitai.com/api/download/models/568485?type=Model&format=SafeTensor&size=full&fp=fp16&token=${CIVITAI_API_TOKEN}; \
     fi
 
 # Stage 3: Final image
