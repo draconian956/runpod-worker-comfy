@@ -1,5 +1,5 @@
 # Stage 1: Base image with common dependencies
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 AS base
 
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -52,7 +52,7 @@ ADD *snapshot*.json /
 RUN /restore_snapshot.sh
 
 # Stage 2: Download models
-FROM base as downloader
+FROM base AS downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 ARG CIVITAI_API_TOKEN
@@ -88,15 +88,15 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
 	wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
 	fi
 
-COPY [mochi_models]/mochi1PreviewVideo_previewBF16.safetensor[s] models/diffusion_models/
-COPY [mochi_models]/mochi1PreviewVideo_vae.safetensor[s] models/vae/
-COPY [mochi_models]/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensor[s] models/clip/
-
 # Stage 3: Final image
-FROM base as final
+FROM base AS final
 
 # Copy models from stage 2 to the final image
 COPY --from=downloader /comfyui/models /comfyui/models
+
+COPY ./mochi_model[s]/mochi1PreviewVideo_previewBF16.safetensor[s] /comfyui/models/diffusion_models/
+COPY ./mochi_model[s]/mochi1PreviewVideo_vae.safetensor[s] /comfyui/models/vae/
+COPY ./mochi_model[s]/stableDiffusion3SD3_textEncoderT5XXLFP16.safetensor[s] /comfyui/models/clip/
 
 # Start the container
 CMD ["/start.sh"]
